@@ -10,57 +10,62 @@ Reference implementation of the [JSONata query and transformation language](http
 
 ## Installation
 
-- `npm install jsonata`
+```
+go get github.com/jsonata-js/jsonata
+```
+
+The `jsonata` command line tool:
+
+```
+go install github.com/jsonata-js/jsonata/cmd/jsonata@latest
+```
 
 ## Quick start
 
-In Node.js:
+As a Go library:
 
-```javascript
-const jsonata = require('jsonata');
+```go
+package main
 
-const data = {
-    example: [
-        {value: 4},
-        {value: 7},
-        {value: 13}
-    ]
-};
+import (
+	"fmt"
 
-(async () => {
-    const expression = jsonata('$sum(example.value)');
-    const result = await expression.evaluate(data);  // returns 24
-})()
+	"github.com/jsonata-js/jsonata"
+)
+
+func main() {
+	data, _ := jsonata.ParseJSON(`{"example": [{"value": 4}, {"value": 7}, {"value": 13}]}`)
+	expression, err := jsonata.New("$sum(example.value)", nil)
+	if err != nil {
+		panic(err)
+	}
+	result, err := expression.Evaluate(data, nil)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result) // 24
+}
 ```
 
-In a browser:
+Values follow the JSON data model as JavaScript represents it: `nil` is undefined, `jsonata.Null` is
+`null`, numbers are `float64`, arrays are `*jsonata.Array` and objects are `*jsonata.Object`, whose keys
+keep JavaScript property order. `jsonata.ParseJSON` and `jsonata.Stringify` convert from and to JSON text.
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>JSONata test</title>
-    <script src="https://cdn.jsdelivr.net/npm/jsonata/jsonata.min.js"></script>
-    <script>
-      async function greeting() {
-        var json = JSON.parse(document.getElementById('json').value);
-        var result = await jsonata('"Hello, " & name').evaluate(json);
-        document.getElementById('greeting').innerHTML = result;
-      }
-    </script>
-  </head>
-  <body>
-    <textarea id="json">{ "name": "Wilbur" }</textarea>
-    <button onclick="greeting()">Click me</button>
-    <p id="greeting"></p>
-  </body>
-</html>
+From the command line:
+
 ```
+$ echo '{"name": "Wilbur"}' | jsonata -i - '"Hello, " & name'
+"Hello, Wilbur"
+```
+
+`jsonata [-i FILE] [-b JSON] [--ast] [--recover] EXPRESSION` reads the input document from `FILE` (`-`
+for standard input), binds the members of the `-b` object as variables, and prints the result as JSON.
+A JSONata error is printed to standard error as JSON with its code, position, token, value and message,
+with exit status 1; `--ast` prints the parsed expression and `--recover` parses in recovery mode.
 
 ## More information
 - JSONata [documentation](http://docs.jsonata.org/)
-- [JavaScript API](http://docs.jsonata.org/embedding-extending)
+- [Go API reference](https://pkg.go.dev/github.com/jsonata-js/jsonata)
 - [Intro talk](https://www.youtube.com/watch?v=TDWf6R8aqDo) at London Node User Group
 
 ## Contributing

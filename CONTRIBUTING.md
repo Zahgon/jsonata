@@ -19,7 +19,7 @@ Provide as much context as possible so we can try to recreate the issue.
 At a minimum, please include:
 
  - Version of `jsonata` - either release number if you downloaded a zip, or the first few lines of `git log` if you are cloning the repository directly.
- - Version of Node.js (`node -v`), or browser vendor and version.
+ - Version of Go (`go version`).
 
 
 ## Feature requests
@@ -42,14 +42,16 @@ Signed-off-by: John Doe <john.doe@hisdomain.com>
 
 ### Coding standards
 
-Please ensure you follow the coding standards used through-out the existing code base. Coding standards are checked by ESLint. 100% test coverage must be maintained at all times.
+Please ensure you follow the coding standards used through-out the existing code base. Code must be formatted with `gofmt` and pass `go vet ./...`, and new behaviour needs tests.
 
 ## Running tests
 
-Tests are written using Mocha and can be run directly via NPM.
+Tests are written with Go's `testing` package. `go test ./...` runs them, including the
+language-neutral test suite in `test/test-suite`.
 
 ```
-npm test
+go vet ./...
+go test ./...
 ```
 
-> *Timezones* There are a number of tests that test date functionality. In order for these tests to pass they need to be run in GMT time. (Since Jan 1 in GMT is still Dec 31 in any timezone further west). The workaround is to update your system clock to be in GMT while you are running tests.
+> *Timezones* There are a number of tests that test date functionality. In order for these tests to pass they need to be run in GMT time. (Since Jan 1 in GMT is still Dec 31 in any timezone further west). Run them with `TZ=UTC go test ./...`.
